@@ -90,6 +90,32 @@ async function estadoNaTela(W){
   return contas.filter(c=>c.provedor==='baileys').map(c=>c.estado);
 }
 
+// Cadastra na tela o número que o motor já usa (21/11): sem o aluno clicar em Adicionar número.
+// Usa o SUPABASE_ACCESS_TOKEN da Casa (passo do banco) pela API de gestão do Supabase. Reaproveita a conta
+// do mesmo número se ela existir (com ou sem o nono dígito) e solta o computador dela, para o
+// mensageria:ligar prender a conta neste computador. Nunca imprime o número.
+async function garantirContaNaTela(W,env){
+  const token=env.SUPABASE_ACCESS_TOKEN,url=env.SUPABASE_URL||env.NEXT_PUBLIC_SUPABASE_URL;
+  if(!token)return 'sem_token';
+  const {ensureEngine,waitForConnection,ownPhone}=await import(pathToFileURL(path.join(W,'src','engine-client.mjs')).href);
+  const tel=ownPhone(await waitForConnection(await ensureEngine()));
+  if(!/^\d{10,15}$/.test(tel))return 'sem_numero';
+  const ref=new URL(url).hostname.split('.')[0];
+  if(!/^[a-z0-9]{20}$/.test(ref))return 'sem_projeto';
+  const query=`with achada as (
+    update mensageria.conta set instalacao_id=null,runtime_id=null,lease_ate=null,epoca=epoca+1
+     where id=(select id from mensageria.conta where provedor='baileys' and right(regexp_replace(coalesce(telefone,''),'[^0-9]','','g'),8)=right('${tel}',8) order by criada_em limit 1)
+    returning id),
+  nova as (
+    insert into mensageria.conta(nome,provedor,telefone) select 'WhatsApp principal','baileys','${tel}'
+     where not exists(select 1 from achada) on conflict do nothing returning id)
+  select (select count(*) from achada)::int as achada,(select count(*) from nova)::int as nova`;
+  const r=await fetch(`https://api.supabase.com/v1/projects/${ref}/database/query`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({query}),signal:AbortSignal.timeout(60000)});
+  if(!r.ok)return `api_${r.status}`;
+  const [linha0]=await r.json();
+  return linha0?.nova?'criada':linha0?.achada?'reaproveitada':'nao_gravou';
+}
+
 async function restaurar(W,backup,env,motivo){
   out('ESPELHO_FALHOU',motivo);
   for(const a of ARQUIVOS){
@@ -154,7 +180,9 @@ async function main(){
       for(const [a,buf] of novos)await writeFile(path.join(W,a.caminho),buf);
       out('ARQUIVOS','gravados');
     }else out('ARQUIVOS','ja_instalados');
-    // 5. Liga o computador à tela (mesma ação da instalação da Casa) e para o conector separado.
+    // 5. Cadastra o número na tela, liga o computador à tela (mesma ação da instalação da Casa) e para o conector separado.
+    const conta=await garantirContaNaTela(W,env).catch(error=>'erro_'+String(error?.message||error).slice(0,60));
+    out('NUMERO_NA_TELA',conta);
     const lig=await node(W,[path.join('src','multicanal','cli.mjs'),'ligar'],env,120000);
     if(!lig.ok)throw new Error('ligar_computador: '+lig.saida.split('\n').filter(Boolean).pop()?.slice(0,160));
     out('COMPUTADOR_NA_TELA','ligado');
@@ -175,7 +203,7 @@ async function main(){
     out('WHATSAPP_CONECTADO','sim');out('IA_NO_WHATSAPP','sim');
     if(/ESPELHO_AGUARDANDO=nenhuma conta/.test(log)){
       out('NA_TELA','falta_adicionar_numero');
-      out('PROXIMO_PASSO','na tela do Empresa OS, WhatsApp > Adicionar número (QR Code) com este mesmo número; NÃO leia QR; depois rode este comando de novo');
+      out('PROXIMO_PASSO','não deu para cadastrar o número sozinho; na tela do Empresa OS, WhatsApp > Adicionar número (QR Code) com este mesmo número, SEM ler QR; depois rode este comando de novo');
       return;
     }
     if(/ESPELHO_AGUARDANDO=mais de uma/.test(log)){

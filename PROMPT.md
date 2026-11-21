@@ -1,6 +1,6 @@
 # Prompt para colar no Codex do aluno
 
-Antes de colar: na tela do Empresa OS, abra **WhatsApp**, clique em **Adicionar número**, digite o mesmo número que já está conectado no Codex, deixe **QR Code** e confirme. **Não** clique em "Conectar ou mostrar QR".
+Não precisa cadastrar nada na tela antes: o comando pega o número do WhatsApp do Codex e grava na tela sozinho (com o `SUPABASE_ACCESS_TOKEN` da Casa). Se essa chave faltar, ele pede o clique em Adicionar número, sem QR.
 
 Copie e cole tudo o que está abaixo no Codex, aberto na pasta da sua Casa:
 
@@ -21,7 +21,7 @@ Se aparecer ROLLBACK, não tente consertar: só me mostre as linhas.
 1. Confere se o WhatsApp do Codex está conectado e se os arquivos são os do kit. Se não, para sem mexer em nada.
 2. Guarda uma cópia dos arquivos originais fora da Casa.
 3. Baixa os 3 arquivos novos e confere cada um pelo hash antes de gravar.
-4. Liga o computador à tela (`mensageria:ligar`) e desliga o conector separado da tela, que disputaria o mesmo número.
+4. Cadastra o número na tela (ou reaproveita a conta do mesmo número), liga o computador à tela (`mensageria:ligar`) e desliga o conector separado da tela, que disputaria o mesmo número.
 5. Reinicia o motor do WhatsApp com o espelho e prova: WhatsApp conectado, @ia de pé, número **conectada** na tela.
 6. Se qualquer prova falhar, devolve os arquivos originais, reinicia o motor e confere que o WhatsApp voltou (`ROLLBACK=OK`).
 
@@ -33,6 +33,7 @@ Para desfazer depois, à mão: o mesmo comando trocando `[f]` por `[f,'--desfaze
 ESPELHO_VERSAO=espelho-2026-11-21
 BACKUP=ok
 ARQUIVOS=gravados
+NUMERO_NA_TELA=criada
 COMPUTADOR_NA_TELA=ligado
 WHATSAPP_CONECTADO=sim
 IA_NO_WHATSAPP=sim
