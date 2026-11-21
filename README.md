@@ -4,7 +4,7 @@ Para alunos do Mestre das IAs que **já conectaram o WhatsApp pelo Codex** e que
 
 O WhatsApp continua funcionando como antes (@ia, rotinas, grupos, volta sozinho quando o computador reinicia). A tela passa a mostrar as mensagens novas e consegue enviar pela mesma conexão.
 
-**Como usar:** veja [PROMPT.md](PROMPT.md).
+**Como usar:** no Codex, aberto na pasta da Casa, mande: `Leia https://raw.githubusercontent.com/polozigit/whatsapp-espelho/main/CODEX.md e siga.` Detalhes em [PROMPT.md](PROMPT.md).
 
 Segurança:
 - O comando não imprime chave, token, endereço do banco nem número completo.
