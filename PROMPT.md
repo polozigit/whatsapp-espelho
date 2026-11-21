@@ -8,7 +8,7 @@ Copie e cole tudo o que está abaixo no Codex, aberto na pasta da sua Casa:
 Tarefa fechada, sem investigar: ligar meu WhatsApp (que já está conectado aqui no Codex) à tela do Empresa OS.
 Não leia arquivos, não abra o navegador, não mude nada por conta própria. Rode exatamente este comando, uma vez, na pasta da Casa:
 
-node -e "fetch('https://raw.githubusercontent.com/polozigit/whatsapp-espelho/main/instalar-espelho.mjs').then(r=>{if(!r.ok)throw new Error('download '+r.status);return r.text()}).then(t=>{const f=require('path').join(require('os').tmpdir(),'instalar-espelho.mjs');require('fs').writeFileSync(f,t);require('child_process').execFileSync(process.execPath,[f],{stdio:'inherit'})}).catch(e=>{console.log('ESPELHO_ERRO='+String(e.message).slice(0,150));process.exitCode=1})"
+node -e "fetch('https://raw.githubusercontent.com/polozigit/whatsapp-espelho/main/instalar-espelho.mjs').then(r=>{if(!r.ok)throw new Error('download '+r.status);return r.text()}).then(t=>{const f=require('path').join(require('os').tmpdir(),'instalar-espelho.mjs');require('fs').writeFileSync(f,t);require('child_process').execFileSync(process.execPath,[f],{stdio:'inherit'})}).catch(e=>{if(!e.status)console.log('ESPELHO_ERRO='+String(e.message).slice(0,150));process.exitCode=e.status||1})"
 
 Se o sandbox pedir permissão de rede ou para rodar fora dele, peça a minha aprovação e rode o mesmo comando.
 Depois me mostre só as linhas que começam com ESPELHO, NA_TELA, ROLLBACK, WHATSAPP_CONECTADO, IA_NO_WHATSAPP e PROXIMO_PASSO, e diga em uma frase o que eu faço agora.
